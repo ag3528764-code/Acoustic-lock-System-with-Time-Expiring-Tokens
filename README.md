@@ -18,6 +18,26 @@ This is a security project built with Python and Streamlit that uses sound waves
 --> Memory Efficient: Processes everything in RAM using byte streams (io.BytesIO), meaning it doesn't clutter your local drive with temp files.
 
 #   Project Structure
+
 encoderdecoderintegrated.py — The main integrated app. It has a two-tab dashboard layout so you can encode or decode from the same UI.
 
 encoder.py — A standalone script that only handles the encoding and wave synthesis side of things.
+
+
+#   Audio Settings
+
+--> Sample Rate: 44.1 kHz (Standard CD quality, mono channel).
+
+--> Quantization Space: Unsigned 16-bit short integers (<H). The wave shifts around a center point of 32,768 with a max amplitude of 15,000. This buffer prevents the math from clipping or throwing integer overflow bugs during bit swapping.
+
+--> Bit Mixing: The loop modifies exactly 1 bit per audio sample, storing data directly into the least significant bit (LSB).
+
+#   Security Workflow
+
+--> Input: You type a message or upload a file, then choose a base frequency (like 440 Hz).
+
+--> Packing: The script gets the current time, generates a live OTP code using the shared seed, builds the 78-byte header structure, and tacks on the compressed asset data.
+
+--> Synthesis: It converts the whole bitstream into a .wav file that plays a tone holding the hidden data.
+
+--> Decoding & Verification: The decoder reads the first 78 bytes to unpack the metadata. It subtracts the creation timestamp from the current system time. If the file is older than 120 seconds, or if the user's manual OTP token doesn't match the one hidden inside the wave, the gate locks and denies the download.
