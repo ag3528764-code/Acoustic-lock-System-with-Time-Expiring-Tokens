@@ -1,0 +1,5 @@
+streamlit
+pyotp
+qrcode
+pillow
+
